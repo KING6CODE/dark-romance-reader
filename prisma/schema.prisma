@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Roman {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  title     String
+  author    String
+  cover     String
+  tagline   String    @default("")
+  authorBio String    @default("") @db.Text
+  authorImg String    @default("")
+  chapters  Chapter[]
+  purchases Purchase[]
+  createdAt DateTime  @default(now())
+}
+
+model Chapter {
+  id        String     @id @default(cuid())
+  romanId   String
+  roman     Roman      @relation(fields: [romanId], references: [id])
+  number    Int
+  title     String
+  content   String     @db.Text
+  isFree    Boolean    @default(false)
+  price     Int        @default(99) // centimes
+  purchases Purchase[]
+
+  @@unique([romanId, number])
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  email     String
+  chapterId String?
+  chapter   Chapter? @relation(fields: [chapterId], references: [id])
+  romanId   String?
+  roman     Roman?   @relation(fields: [romanId], references: [id])
+  type      String   // "chapter" | "full"
+  stripeId  String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
