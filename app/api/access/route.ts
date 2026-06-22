@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { EMAIL_COOKIE } from '@/lib/access'
+import { EMAIL_COOKIE } from '@/lib/constants'
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json()

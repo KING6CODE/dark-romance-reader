@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
-
-export const EMAIL_COOKIE = 'reader_email'
+import { EMAIL_COOKIE } from '@/lib/constants'
 
 export function getReaderEmail(): string | null {
   const cookie = cookies().get(EMAIL_COOKIE)

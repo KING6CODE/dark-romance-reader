@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { EMAIL_COOKIE } from '@/lib/access'
+import { EMAIL_COOKIE } from '@/lib/constants'
 
 interface ChapterLockProps {
   slug: string
