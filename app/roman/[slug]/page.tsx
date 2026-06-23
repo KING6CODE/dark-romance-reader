@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function RomanPage({
   params,
+  searchParams,
 }: {
   params: { slug: string }
+  searchParams: { canceled?: string }
 }) {
   const roman = await prisma.roman.findUnique({
     where: { slug: params.slug },
@@ -17,9 +19,19 @@ export default async function RomanPage({
 
   if (!roman) notFound()
 
+  const wasCanceled = searchParams.canceled === 'true'
+
   return (
     <main className="min-h-screen px-6 py-16">
       <div className="mx-auto max-w-2xl">
+        {wasCanceled && (
+          <div className="mb-8 rounded-md border border-accent/30 bg-accent/10 px-5 py-4 text-center">
+            <p className="font-sans text-sm text-accent">
+              Paiement annulé. Vous pouvez réessayer quand vous le souhaitez.
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left sm:gap-8">
           <div className="relative h-48 w-32 flex-shrink-0 overflow-hidden rounded-md border border-white/10">
             <Image

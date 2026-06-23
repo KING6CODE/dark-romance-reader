@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       success_url: `${baseUrl}/lire/${slug}/${nextChapterNumber}?success=true`,
-      cancel_url: `${baseUrl}/roman/${slug}`,
+      cancel_url: `${baseUrl}/roman/${slug}?canceled=true`,
       metadata: {
         email,
         type,
