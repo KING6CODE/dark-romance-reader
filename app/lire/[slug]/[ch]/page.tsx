@@ -35,7 +35,7 @@ export default async function LirePage({
     hasAccess = await hasAccessToChapter(email, chapter.id, roman.id)
   }
 
-  const paragraphs = chapter.content.split('\n\n').filter(Boolean)
+  const paragraphs = chapter.content.split('\n').filter((p) => p.trim().length > 0)
   const visibleParagraphs = hasAccess ? paragraphs : paragraphs.slice(0, 3)
 
   return (
@@ -69,11 +69,21 @@ export default async function LirePage({
         </h1>
 
         <div className="font-serif text-[18px] leading-reading text-text-primary">
-          {visibleParagraphs.map((p, i) => (
-            <p key={i} className="mb-6">
-              {p}
-            </p>
-          ))}
+          {visibleParagraphs.map((p, i) => {
+            const isDialogue = p.trim().startsWith('—')
+            return (
+              <p
+                key={i}
+                className={
+                  isDialogue
+                    ? 'mb-5 text-text-primary/95'
+                    : 'mb-7 text-text-primary'
+                }
+              >
+                {p.trim()}
+              </p>
+            )
+          })}
         </div>
 
         {!hasAccess && nextChapter && (
