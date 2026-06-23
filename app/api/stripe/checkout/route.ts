@@ -52,7 +52,16 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const amount = PRICES[type]
+
+    // Le prix du chapitre vient de la base (respecte les offres dynamiques comme
+    // l'offre d'appel à 0,50€ sur le chapitre 2). Le pack complet garde un prix fixe.
+    let amount: number
+    if (type === 'chapter') {
+      const chapter = roman.chapters.find((c) => c.id === chapterId)!
+      amount = chapter.price
+    } else {
+      amount = PRICES.full
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',

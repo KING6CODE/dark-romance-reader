@@ -90,6 +90,7 @@ export default async function LirePage({
           <ChapterLock
             slug={roman.slug}
             romanId={roman.id}
+            nextChapterPrice={nextChapter.price}
             chapterId={nextChapter.id}
             nextChapter={nextChapter.number}
             nextChapterTitle={nextChapter.title}
