@@ -25,19 +25,20 @@ async function main() {
   })
 
   console.log('Création des chapitres...')
-  for (const chapter of chapters) {
-    const isFree = chapter.number === 1 // Seul le chapitre 1 est gratuit
-    await prisma.chapter.create({
-      data: {
-        romanId: roman.id,
-        number: chapter.number,
-        title: chapter.title,
-        content: chapter.content,
-        isFree,
-        price: isFree ? 0 : Math.round(chapter.price * 100),
-      },
-    })
-  }
+for (const chapter of chapters) {
+  const isFree = chapter.number === 1 // Seul le chapitre 1 est gratuit
+  await prisma.chapter.create({
+    data: {
+      romanId: roman.id,
+      number: chapter.number,
+      title: chapter.title,
+      content: chapter.content,
+      isFree,
+      // Prix uniforme : 0 pour le chapitre gratuit, 0,99€ pour tous les autres.
+      price: isFree ? 0 : 99,
+    },
+  })
+}
 
   console.log('Seed terminé avec succès.')
 }
