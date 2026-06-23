@@ -35,6 +35,20 @@ export default async function LirePage({
     hasAccess = await hasAccessToChapter(email, chapter.id, roman.id)
   }
 
+  // L'accès au chapitre suivant est vérifié séparément : même si le chapitre actuel
+  // est gratuit (ex: chapitre 1), il faut vérifier si le chapitre suivant est verrouillé
+  // pour savoir si on affiche le paywall ou la navigation classique.
+  let hasAccessToNext = false
+  if (nextChapter) {
+    if (nextChapter.isFree) {
+      hasAccessToNext = true
+    } else {
+      const email = getReaderEmail()
+      hasAccessToNext = await hasAccessToChapter(email, nextChapter.id, roman.id)
+    }
+  }
+
+  // Le texte source utilise un simple saut de ligne entre chaque réplique/phrase.
   const paragraphs = chapter.content.split('\n').filter((p) => p.trim().length > 0)
   const visibleParagraphs = hasAccess ? paragraphs : paragraphs.slice(0, 3)
 
@@ -86,19 +100,19 @@ export default async function LirePage({
           })}
         </div>
 
-        {!hasAccess && nextChapter && (
+        {!hasAccessToNext && nextChapter && (
           <ChapterLock
             slug={roman.slug}
             romanId={roman.id}
-            nextChapterPrice={nextChapter.price}
             chapterId={nextChapter.id}
             nextChapter={nextChapter.number}
             nextChapterTitle={nextChapter.title}
+            nextChapterPrice={nextChapter.price}
             teaser="Ce qu'elle découvre derrière cette porte va tout changer entre eux."
           />
         )}
 
-        {!hasAccess && !nextChapter && (
+        {hasAccess && !nextChapter && (
           <p className="mt-10 text-center font-sans text-sm text-text-secondary">
             C&apos;était le dernier chapitre. Merci d&apos;avoir lu.
           </p>
@@ -118,7 +132,7 @@ export default async function LirePage({
           ) : (
             <span />
           )}
-          {nextChapter ? (
+          {hasAccessToNext && nextChapter ? (
             <Link
               href={`/lire/${roman.slug}/${nextChapter.number}`}
               className="font-sans text-sm text-text-secondary hover:text-accent"
