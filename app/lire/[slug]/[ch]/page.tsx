@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getReaderEmail, hasAccessToChapter } from '@/lib/access'
 import ChapterLock from '@/components/ChapterLock'
 import ReadingProgress from '@/components/ReadingProgress'
+import PostPurchaseUpsell from '@/components/PostPurchaseUpsell'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,17 +28,14 @@ export default async function LirePage({
 
   const prevChapter = roman.chapters.find((c) => c.number === chapterNumber - 1)
   const nextChapter = roman.chapters.find((c) => c.number === chapterNumber + 1)
+  const chapterAfterNext = roman.chapters.find((c) => c.number === chapterNumber + 2)
 
-  // Chapitre 1 toujours accessible. Sinon, vérifie l'accès via email/cookie + DB.
   let hasAccess = chapter.isFree
   if (!hasAccess) {
     const email = getReaderEmail()
     hasAccess = await hasAccessToChapter(email, chapter.id, roman.id)
   }
 
-  // L'accès au chapitre suivant est vérifié séparément : même si le chapitre actuel
-  // est gratuit (ex: chapitre 1), il faut vérifier si le chapitre suivant est verrouillé
-  // pour savoir si on affiche le paywall ou la navigation classique.
   let hasAccessToNext = false
   if (nextChapter) {
     if (nextChapter.isFree) {
@@ -48,7 +46,22 @@ export default async function LirePage({
     }
   }
 
-  // Le texte source utilise un simple saut de ligne entre chaque réplique/phrase.
+  let hasAccessToChapterAfterNext = false
+  if (chapterAfterNext) {
+    if (chapterAfterNext.isFree) {
+      hasAccessToChapterAfterNext = true
+    } else {
+      const email = getReaderEmail()
+      hasAccessToChapterAfterNext = await hasAccessToChapter(
+        email,
+        chapterAfterNext.id,
+        roman.id
+      )
+    }
+  }
+  const showPostPurchaseUpsell =
+    chapter.number === 2 && hasAccess && !hasAccessToChapterAfterNext
+
   const paragraphs = chapter.content.split('\n').filter((p) => p.trim().length > 0)
   const visibleParagraphs = hasAccess ? paragraphs : paragraphs.slice(0, 3)
 
@@ -56,7 +69,6 @@ export default async function LirePage({
     <main className="min-h-screen pb-20">
       <ReadingProgress />
 
-      {/* HEADER */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/5 bg-background/90 px-5 py-4 backdrop-blur-sm">
         <Link
           href={`/roman/${roman.slug}`}
@@ -76,7 +88,6 @@ export default async function LirePage({
         <div className="w-12" />
       </header>
 
-      {/* CORPS DU TEXTE */}
       <article className="mx-auto max-w-65ch px-6 py-12">
         <h1 className="mb-8 text-center font-serif text-2xl text-text-primary">
           {chapter.title}
@@ -100,7 +111,7 @@ export default async function LirePage({
           })}
         </div>
 
-        {!hasAccessToNext && nextChapter && (
+        {!hasAccessToNext && nextChapter && !showPostPurchaseUpsell && (
           <ChapterLock
             slug={roman.slug}
             romanId={roman.id}
@@ -108,7 +119,16 @@ export default async function LirePage({
             nextChapter={nextChapter.number}
             nextChapterTitle={nextChapter.title}
             nextChapterPrice={nextChapter.price}
+            currentChapterNumber={chapter.number}
             teaser="Ce qu'elle découvre derrière cette porte va tout changer entre eux."
+          />
+        )}
+
+        {showPostPurchaseUpsell && (
+          <PostPurchaseUpsell
+            slug={roman.slug}
+            romanId={roman.id}
+            currentChapterNumber={chapter.number}
           />
         )}
 
@@ -119,7 +139,6 @@ export default async function LirePage({
         )}
       </article>
 
-      {/* NAVIGATION BAS DE PAGE */}
       {hasAccess && (
         <nav className="mx-auto flex max-w-65ch items-center justify-between border-t border-white/5 px-6 py-6">
           {prevChapter ? (
