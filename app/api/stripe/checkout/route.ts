@@ -2,22 +2,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe, PRICES, PurchaseType } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 
+type CheckoutType = PurchaseType | 'pack-upsell'
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { email, type, chapterId, romanId, slug } = body as {
+    const {
+      email,
+      type,
+      chapterId,
+      romanId,
+      slug,
+      cancelChapter,
+      timerActive,
+    } = body as {
       email: string
-      type: PurchaseType
+      type: CheckoutType
       chapterId?: string
       romanId: string
       slug: string
+      cancelChapter?: number
+      timerActive?: boolean
     }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
     }
 
-    if (type !== 'chapter' && type !== 'full') {
+    if (type !== 'chapter' && type !== 'full' && type !== 'pack-upsell') {
       return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
     }
 
@@ -47,21 +59,28 @@ export async function POST(req: NextRequest) {
       }
       nextChapterNumber = chapter.number
       productName = `${roman.title} — Chapitre ${chapter.number} : ${chapter.title}`
+    } else if (type === 'pack-upsell') {
+      nextChapterNumber = 3
+      productName = `${roman.title} — Chapitres 3 à 8`
     } else {
       nextChapterNumber = 2
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
-    // Le prix du chapitre vient de la base (respecte les offres dynamiques comme
-    // l'offre d'appel à 0,50€ sur le chapitre 2). Le pack complet garde un prix fixe.
     let amount: number
     if (type === 'chapter') {
       const chapter = roman.chapters.find((c) => c.id === chapterId)!
       amount = chapter.price
+    } else if (type === 'pack-upsell') {
+      amount = timerActive ? 399 : 499
     } else {
       amount = PRICES.full
     }
+
+    const cancelUrl = cancelChapter
+      ? `${baseUrl}/lire/${slug}/${cancelChapter}?canceled=true`
+      : `${baseUrl}/roman/${slug}?canceled=true`
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -80,7 +99,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       success_url: `${baseUrl}/lire/${slug}/${nextChapterNumber}?success=true`,
-      cancel_url: `${baseUrl}/roman/${slug}?canceled=true`,
+      cancel_url: cancelUrl,
       metadata: {
         email,
         type,
