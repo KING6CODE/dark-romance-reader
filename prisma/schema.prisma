@@ -43,7 +43,7 @@ model Purchase {
   chapter   Chapter? @relation(fields: [chapterId], references: [id])
   romanId   String?
   roman     Roman?   @relation(fields: [romanId], references: [id])
-  type      String   // "chapter" | "full"
+  type      String   // "chapter" | "full" | "pack-upsell"
   stripeId  String   @unique
   createdAt DateTime @default(now())
 
