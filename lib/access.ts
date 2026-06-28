@@ -9,7 +9,9 @@ export function getReaderEmail(): string | null {
 
 /**
  * Vérifie si l'email (lu depuis le cookie) a accès à un chapitre donné,
- * soit via l'achat du chapitre seul, soit via l'achat du pack complet du roman.
+ * soit via l'achat du chapitre seul, soit via l'achat du pack complet du roman
+ * (type "full"), soit via l'upsell post-achat (type "pack-upsell", qui débloque
+ * également l'ensemble du roman pour l'email concerné).
  */
 export async function hasAccessToChapter(
   email: string | null,
@@ -24,6 +26,7 @@ export async function hasAccessToChapter(
       OR: [
         { chapterId, type: 'chapter' },
         { romanId, type: 'full' },
+        { romanId, type: 'pack-upsell' },
       ],
     },
   })
