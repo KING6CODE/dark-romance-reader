@@ -54,9 +54,7 @@ Puis il recula brutalement, comme s'il s'était brûlé.
 Je quittai son bureau le souffle court, le corps en feu.
 Ce soir-là, je n'en pouvais plus. J'appelai Clara.
 — J'ai besoin de sortir. De boire. D'oublier son visage de salaud.
-Au Velvet, la musique pulsait, les lumières rouges baignaient tout d'une sensualité lourde. Robe noire ultra courte, cheveux lâchés, rouge à lèvres provoquant. Je dansai, verre après verre. Des mains inconnues sur mes hanches. Des corps pressés contre le mien. Rien ne marchait. Aucun frisson. Aucun oubli.
-Puis je le vis.
-Alexei, sur la mezzanine, dans l'ombre, regard rivé sur moi comme un prédateur. Mon sang ne fit qu'un tour. Bourrée, furieuse, enragée de désir et de haine, je montai l'escalier en titubant et me plantai devant lui.
+Au Velvet, la musique pulsait, les lumières rouges baignaient tout d'une sensualité lourde. Robe noire ultra courte, cheveux lâchés, rouge à lèvres provoquant. Je dansai, verre après verre. Des mains inconnues sur mes hanches. Des corps pressés contre le mien. Rien ne marchait. Aucun frisson.
 Puis tout devint noir.
 Quand j'ouvris les yeux, une lumière tamisée filtrait à travers d'épais rideaux. Ma tête pulsait. Les draps étaient d'un luxe froid, gris anthracite. Je me redressai lentement. J'étais dans une chambre immense, minimaliste, masculine. Sur une chaise, ma robe noire. Et une chemise d'homme.
 La porte de la salle de bain s'ouvrit. Alexei apparut, torse nu, seulement vêtu d'un pantalon de jogging bas sur les hanches. Ses tatouages russes sombres couraient sur ses avant-bras et son pectoral. Il s'arrêta net en me voyant réveillée.
