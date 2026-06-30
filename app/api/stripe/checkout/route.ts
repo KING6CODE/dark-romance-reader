@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
       chapterId?: string
       romanId: string
       slug: string
+      /** Numéro du chapitre depuis lequel l'achat a été initié (pour le bouton "Retour" Stripe). */
       cancelChapter?: number
+      /** Pour le type "pack-upsell" : indique si le compte à rebours est encore actif (399) ou expiré (499). */
       timerActive?: boolean
     }
 
@@ -60,14 +62,18 @@ export async function POST(req: NextRequest) {
       nextChapterNumber = chapter.number
       productName = `${roman.title} — Chapitre ${chapter.number} : ${chapter.title}`
     } else if (type === 'pack-upsell') {
+      // L'upsell débloque la suite du roman (chapitres 3 à 15) après l'achat du chapitre 2.
       nextChapterNumber = 3
-      productName = `${roman.title} — Chapitres 3 à 8`
+      productName = `${roman.title} — Chapitres 3 à 15`
     } else {
       nextChapterNumber = 2
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
+    // Le prix du chapitre vient de la base (respecte les offres dynamiques comme
+    // l'offre d'appel à 0,50€ sur le chapitre 2). Le pack complet garde un prix fixe.
+    // Le pack-upsell a un prix dynamique selon que le compte à rebours est actif ou non.
     let amount: number
     if (type === 'chapter') {
       const chapter = roman.chapters.find((c) => c.id === chapterId)!
@@ -78,6 +84,8 @@ export async function POST(req: NextRequest) {
       amount = PRICES.full
     }
 
+    // cancel_url : revient sur le chapitre depuis lequel l'achat a été initié,
+    // plutôt que sur la page produit générique du roman.
     const cancelUrl = cancelChapter
       ? `${baseUrl}/lire/${slug}/${cancelChapter}?canceled=true`
       : `${baseUrl}/roman/${slug}?canceled=true`
