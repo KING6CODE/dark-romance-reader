@@ -10,11 +10,13 @@ interface ChapterLockProps {
   nextChapter: number
   nextChapterTitle: string
   teaser: string
+  /** Prix du chapitre suivant en centimes (ex: 50 pour 0,50€, 99 pour 0,99€) */
   nextChapterPrice: number
+  /** Numéro du chapitre actuellement affiché (celui depuis lequel l'achat est initié). */
   currentChapterNumber: number
 }
 
-const INTRO_OFFER_DURATION_SECONDS = 10 * 60
+const INTRO_OFFER_DURATION_SECONDS = 10 * 60 // 10 minutes
 const INTRO_OFFER_TIMER_KEY = 'intro_offer_expires_at'
 
 function getCookie(name: string): string {
@@ -43,6 +45,7 @@ export default function ChapterLock({
   const [loading, setLoading] = useState<'chapter' | 'full' | null>(null)
   const [error, setError] = useState('')
 
+  // L'offre d'appel ne s'applique qu'au chapitre 2 (prix défini à 50 centimes en base).
   const isIntroOffer = nextChapter === 2 && nextChapterPrice === 50
 
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
@@ -116,8 +119,9 @@ export default function ChapterLock({
     }
   }
 
+  // Calcul de l'ancrage de prix pour le pack complet (non affiché sur l'offre d'appel)
   const standardChapterPrice = 0.99
-  const remainingChaptersEstimate = 7
+  const remainingChaptersEstimate = 14
   const fullPackPrice = 4.99
   const fullPriceIfUnit = (standardChapterPrice * remainingChaptersEstimate).toLocaleString(
     'fr-FR',
@@ -129,6 +133,7 @@ export default function ChapterLock({
 
   return (
     <div className="relative">
+      {/* Fondu sur les dernières lignes visibles */}
       <div className="pointer-events-none absolute -top-40 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-background" />
 
       <div className="mt-2 rounded-lg border border-white/10 bg-surface px-6 py-10 text-center sm:px-10">
@@ -144,6 +149,7 @@ export default function ChapterLock({
           {teaser}
         </p>
 
+        {/* OFFRE D'APPEL — Chapitre 2 uniquement */}
         {isIntroOffer && !offerExpired && (
           <div className="mx-auto mt-6 max-w-sm rounded-md border border-accent/40 bg-accent/10 px-4 py-3">
             <p className="font-sans text-xs font-semibold uppercase tracking-wide text-accent">
@@ -192,6 +198,7 @@ export default function ChapterLock({
 
         <div className="mx-auto mt-5 flex max-w-sm flex-col gap-3">
           {isIntroOffer ? (
+            // Sur l'offre d'appel : un seul bouton, pas de pack complet pour maximiser la conversion sur le micro-paiement
             <button
               onClick={() => handlePurchase('chapter')}
               disabled={loading !== null}
