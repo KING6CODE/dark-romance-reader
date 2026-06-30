@@ -6,10 +6,11 @@ import { EMAIL_COOKIE } from '@/lib/constants'
 interface PostPurchaseUpsellProps {
   slug: string
   romanId: string
+  /** Numéro du chapitre actuellement affiché (chapitre 2, juste acheté). */
   currentChapterNumber: number
 }
 
-const UPSELL_DURATION_SECONDS = 15 * 60
+const UPSELL_DURATION_SECONDS = 15 * 60 // 15 minutes
 const UPSELL_TIMER_KEY = 'pack_upsell_started_at'
 
 function getCookie(name: string): string {
@@ -34,6 +35,9 @@ export default function PostPurchaseUpsell({
   const [error, setError] = useState('')
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
 
+  // Le timer démarre au premier chargement de la page après achat, et survit aux
+  // refresh grâce à localStorage (contrairement à sessionStorage, il persiste même
+  // si l'onglet est fermé puis réouvert).
   useEffect(() => {
     let startedAt = localStorage.getItem(UPSELL_TIMER_KEY)
     if (!startedAt) {
@@ -55,6 +59,10 @@ export default function PostPurchaseUpsell({
 
   const timerActive = secondsLeft !== null && secondsLeft > 0
   const currentPrice = timerActive ? 3.99 : 4.99
+
+  // 13 chapitres débloqués par cet upsell (chapitres 3 à 15) à 0,99€ l'unité.
+  const unitPriceTotal = 0.99 * 13
+  const savingsPercent = Math.round((1 - currentPrice / unitPriceTotal) * 100)
 
   async function handlePurchase() {
     if (!email || !email.includes('@')) {
@@ -92,6 +100,7 @@ export default function PostPurchaseUpsell({
     }
   }
 
+  // Tant que le timer n'a pas été initialisé côté client, on évite un flash de contenu incorrect.
   if (secondsLeft === null) {
     return null
   }
@@ -103,11 +112,14 @@ export default function PostPurchaseUpsell({
       </p>
 
       <h3 className="mt-3 font-serif text-xl text-text-primary">
-        Les chapitres 3 à 8 vous attendent. Dont la révélation finale.
+        Les chapitres 3 à 15 vous attendent. Dont la révélation finale.
       </h3>
 
       <div className="mx-auto mt-5 max-w-sm rounded-md border border-accent/40 bg-accent/10 px-4 py-3">
-        <p className="font-sans text-sm text-text-primary">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-accent">
+          Économisez {savingsPercent}%
+        </p>
+        <p className="mt-1 font-sans text-sm text-text-primary">
           {timerActive ? (
             <>
               <span className="text-text-secondary line-through">4,99 €</span>{' '}
@@ -116,6 +128,9 @@ export default function PostPurchaseUpsell({
           ) : (
             <span className="text-lg font-semibold text-accent">4,99 €</span>
           )}
+        </p>
+        <p className="mt-1 font-sans text-xs text-text-secondary">
+          Soit {unitPriceTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € si acheté chapitre par chapitre
         </p>
         {timerActive ? (
           <p className="mt-2 font-sans text-xs text-text-secondary">
@@ -143,7 +158,7 @@ export default function PostPurchaseUpsell({
         >
           {loading
             ? 'Redirection...'
-            : `Débloquer les chapitres 3 à 8 maintenant — ${currentPrice
+            : `Débloquer les chapitres 3 à 15 maintenant — ${currentPrice
                 .toFixed(2)
                 .replace('.', ',')} €`}
         </button>
