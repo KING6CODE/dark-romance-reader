@@ -142,7 +142,7 @@ export default function ChapterLock({
         </p>
 
         <h3 className="mt-3 font-serif text-2xl text-text-primary">
-          Chapitre {nextChapter} — {nextChapterTitle}
+          Chapitre {nextChapter}
         </h3>
 
         <p className="mx-auto mt-3 max-w-md font-sans text-sm leading-relaxed text-text-secondary">
