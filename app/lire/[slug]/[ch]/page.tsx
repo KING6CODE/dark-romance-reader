@@ -5,6 +5,7 @@ import { getReaderEmail, hasAccessToChapter } from '@/lib/access'
 import ChapterLock from '@/components/ChapterLock'
 import ReadingProgress from '@/components/ReadingProgress'
 import PostPurchaseUpsell from '@/components/PostPurchaseUpsell'
+import ConversionTracker from '@/components/ConversionTracker'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,6 +68,7 @@ export default async function LirePage({
 
   return (
     <main className="min-h-screen pb-20">
+      <ConversionTracker value={chapter.price / 100} />
       <ReadingProgress />
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/5 bg-background/90 px-5 py-4 backdrop-blur-sm">
