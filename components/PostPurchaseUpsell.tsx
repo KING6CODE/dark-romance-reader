@@ -158,7 +158,7 @@ export default function PostPurchaseUpsell({
         >
           {loading
             ? 'Redirection...'
-            : `Débloquer les chapitres 3 à 15 maintenant — ${currentPrice
+            : `Débloquer les 13 chapitres — ${currentPrice
                 .toFixed(2)
                 .replace('.', ',')} €`}
         </button>
