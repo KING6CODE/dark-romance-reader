@@ -31,35 +31,29 @@ export default async function LirePage({
   const nextChapter = roman.chapters.find((c) => c.number === chapterNumber + 1)
   const chapterAfterNext = roman.chapters.find((c) => c.number === chapterNumber + 2)
 
-  let hasAccess = chapter.isFree
-  if (!hasAccess) {
-    const email = getReaderEmail()
-    hasAccess = await hasAccessToChapter(email, chapter.id, roman.id)
-  }
+  // Perf: un seul cookie read, puis les 3 requêtes Prisma d'accès partent
+  // en parallèle au lieu d'être awaited séquentiellement. Sur une page
+  // SSR pure (pas d'images), c'est le TTFB qui domine le LCP : chaque
+  // aller-retour DB évité ici réduit directement le temps avant le
+  // premier rendu.
+  const email = getReaderEmail()
 
-  let hasAccessToNext = false
-  if (nextChapter) {
-    if (nextChapter.isFree) {
-      hasAccessToNext = true
-    } else {
-      const email = getReaderEmail()
-      hasAccessToNext = await hasAccessToChapter(email, nextChapter.id, roman.id)
-    }
-  }
-
-  let hasAccessToChapterAfterNext = false
-  if (chapterAfterNext) {
-    if (chapterAfterNext.isFree) {
-      hasAccessToChapterAfterNext = true
-    } else {
-      const email = getReaderEmail()
-      hasAccessToChapterAfterNext = await hasAccessToChapter(
-        email,
-        chapterAfterNext.id,
-        roman.id
-      )
-    }
-  }
+  const [hasAccess, hasAccessToNext, hasAccessToChapterAfterNext] =
+    await Promise.all([
+      chapter.isFree
+        ? Promise.resolve(true)
+        : hasAccessToChapter(email, chapter.id, roman.id),
+      !nextChapter
+        ? Promise.resolve(false)
+        : nextChapter.isFree
+          ? Promise.resolve(true)
+          : hasAccessToChapter(email, nextChapter.id, roman.id),
+      !chapterAfterNext
+        ? Promise.resolve(false)
+        : chapterAfterNext.isFree
+          ? Promise.resolve(true)
+          : hasAccessToChapter(email, chapterAfterNext.id, roman.id),
+    ])
   const showPostPurchaseUpsell =
     chapter.number === 2 && hasAccess && !hasAccessToChapterAfterNext
 
