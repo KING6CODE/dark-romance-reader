@@ -16,6 +16,21 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
+        {/*
+          Pas de <link rel="preload"> pour la police "serif" : c'est une
+          stack système (Georgia, Cambria, Times New Roman — voir
+          tailwind.config.js), aucun fichier n'est téléchargé, donc rien
+          à précharger. Idem pour "sans" (Helvetica/Arial). Si un jour
+          vous passez à une police web (Google Fonts ou fichier local),
+          utilisez next/font/google ou next/font/local plutôt qu'un
+          <link rel="preload"> manuel : Next.js génère alors le preload
+          correct automatiquement et évite le FOUT/layout shift.
+        */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.clarity.ms" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.clarity.ms" />
+
         {/* Google Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18003821360"
