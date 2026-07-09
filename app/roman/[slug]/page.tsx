@@ -38,6 +38,9 @@ export default async function RomanPage({
               src={roman.cover}
               alt={roman.title}
               fill
+              priority
+              fetchPriority="high"
+              sizes="128px"
               className="object-cover"
             />
           </div>
